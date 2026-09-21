@@ -15,3 +15,6 @@ https://github.com/prust/wikipedia-movie-data/blob/master/movies-2020s.json
 ...https://github.com/prust/wikipedia-movie-data/blob/master/movies-2020s.json
 ]
 }
+
+npm install json-server
+npx json-server db.json
