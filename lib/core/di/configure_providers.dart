@@ -23,6 +23,9 @@ class ConfigureProviders {
       heroDao: heroDao,
     );
 
+    // Garante que o banco local SQLite contenha todos os agentes do db.json
+    await heroRepository.seedHeroesFromAssets();
+
     // Garante que o jogador comece com 5 agentes no esquadrão/inventário
     await heroRepository.ensureInitialSquad();
 

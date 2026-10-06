@@ -58,6 +58,29 @@ class HeroDao {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
+  /// Retorna um herói aleatório do cache local excluindo IDs específicos (ex: membros do esquadrão)
+  Future<HeroModel?> getRandomCachedHero({List<int> excludeIds = const []}) async {
+    final db = await appDatabase.database;
+    String whereClause = '';
+    List<dynamic> whereArgs = [];
+
+    if (excludeIds.isNotEmpty) {
+      final placeholders = List.filled(excludeIds.length, '?').join(',');
+      whereClause = 'WHERE id NOT IN ($placeholders)';
+      whereArgs = excludeIds;
+    }
+
+    final maps = await db.rawQuery(
+      'SELECT * FROM ${AppDatabase.tableHeroesCache} $whereClause ORDER BY RANDOM() LIMIT 1',
+      whereArgs,
+    );
+
+    if (maps.isNotEmpty) {
+      return HeroModel.fromMap(maps.first);
+    }
+    return null;
+  }
+
   // ==========================================
   // OPERAÇÕES DO ESQUADRÃO (ATÉ 15 MEMBROS)
   // ==========================================

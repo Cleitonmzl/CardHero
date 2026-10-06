@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/services.dart';
 import '../../../domain/hero_model.dart';
 import '../database/dao/hero_dao.dart';
 import '../network/client/api_client.dart';
@@ -11,6 +13,29 @@ class HeroRepository {
     required this.apiClient,
     required this.heroDao,
   });
+
+  /// Popula o cache local com todos os 730+ agentes do db.json embarcado nos assets,
+  /// garantindo que o catálogo completo e as missões funcionem 100% offline no celular físico
+  Future<void> seedHeroesFromAssets() async {
+    try {
+      final cachedCount = await heroDao.getCachedHeroesCount();
+      if (cachedCount >= 50) return; // Banco já populado
+
+      final jsonString = await rootBundle.loadString('assets/data/db.json');
+      final data = jsonDecode(jsonString);
+      if (data is Map<String, dynamic> && data['heroes'] is List) {
+        final List list = data['heroes'];
+        final heroes = list
+            .map((item) => HeroModel.fromMap(item as Map<String, dynamic>))
+            .toList();
+        if (heroes.isNotEmpty) {
+          await heroDao.insertHeroes(heroes);
+        }
+      }
+    } catch (_) {
+      // Ignora erro caso ocorra em ambiente de teste unitário sem bundle de assets
+    }
+  }
 
   /// Busca heróis paginados com estratégia Offline-First
   Future<List<HeroModel>> getHeroes({required int page, required int limit}) async {
@@ -65,22 +90,20 @@ class HeroRepository {
 
   /// Sorteia um herói aleatório (usado para Contrato Diário e Inimigos da Missão)
   Future<HeroModel?> getRandomHero({List<int> excludeIds = const []}) async {
-    final totalCached = await heroDao.getCachedHeroesCount();
-
-    // Se temos heróis no cache local, sorteamos de lá
-    if (totalCached > 0) {
-      final random = Random();
-      // Tenta até 10 vezes sortear um que não esteja na lista de excluídos
-      for (int i = 0; i < 10; i++) {
-        final randomOffset = random.nextInt(totalCached);
-        final list = await heroDao.getCachedHeroes(limit: 1, offset: randomOffset);
-        if (list.isNotEmpty && !excludeIds.contains(list.first.id)) {
-          return list.first;
-        }
-      }
+    // 1. Tenta sortear diretamente do cache SQLite com query nativa RANDOM()
+    final cachedHero = await heroDao.getRandomCachedHero(excludeIds: excludeIds);
+    if (cachedHero != null) {
+      return cachedHero;
     }
 
-    // Se não encontrou no cache ou ainda não há cache, busca da API
+    // 2. Se não encontrou no cache (ex: primeiro boot sem seed), tenta carregar assets
+    await seedHeroesFromAssets();
+    final cachedHeroAfterSeed = await heroDao.getRandomCachedHero(excludeIds: excludeIds);
+    if (cachedHeroAfterSeed != null) {
+      return cachedHeroAfterSeed;
+    }
+
+    // 3. Fallback: busca da API remota
     try {
       final randomPage = Random().nextInt(50) + 1;
       final heroes = await apiClient.getHeroes(page: randomPage, limit: 10);
@@ -100,6 +123,9 @@ class HeroRepository {
   Future<void> ensureInitialSquad() async {
     final currentCount = await heroDao.getSquadCount();
     if (currentCount >= 5) return;
+
+    // Assegura que o seed dos agentes esteja no banco antes de recrutar
+    await seedHeroesFromAssets();
 
     final squadMembers = await heroDao.getSquadMembers();
     final squadIds = squadMembers.map((h) => h.id).toSet();
