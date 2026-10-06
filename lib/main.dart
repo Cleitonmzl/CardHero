@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_repository_example/ui/page/movies_list_page.dart';
-
 import 'package:provider/provider.dart';
 
 import 'core/di/configure_providers.dart';
+import 'ui/page/home_page.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final data = await ConfigureProviders.createDependencyTree();
 
-  runApp(AppRoot(data: data));
+  runApp(CardHeroApp(data: data));
 }
 
-class AppRoot extends StatelessWidget {
+class CardHeroApp extends StatelessWidget {
   final ConfigureProviders data;
 
-  const AppRoot({super.key, required this.data});
+  const CardHeroApp({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +23,17 @@ class AppRoot extends StatelessWidget {
       providers: data.providers,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'The Movie Database',
+        title: 'CardHero',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          brightness: Brightness.dark,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blueAccent,
+            brightness: Brightness.dark,
+          ),
+          scaffoldBackgroundColor: const Color(0xFF0F172A),
         ),
-        home: const MoviesListPage(),
+        home: const HomePage(),
       ),
     );
   }
