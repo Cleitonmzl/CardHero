@@ -8,8 +8,8 @@ class ApiClient {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: const Duration(seconds: 4),
-        receiveTimeout: const Duration(seconds: 4),
+        connectTimeout: const Duration(seconds: 25),
+        receiveTimeout: const Duration(seconds: 25),
       ),
     )..interceptors.add(
         LogInterceptor(

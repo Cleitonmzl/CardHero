@@ -96,17 +96,10 @@ class HeroRepository {
       return cachedHero;
     }
 
-    // 2. Se não encontrou no cache (ex: primeiro boot sem seed), tenta carregar assets
-    await seedHeroesFromAssets();
-    final cachedHeroAfterSeed = await heroDao.getRandomCachedHero(excludeIds: excludeIds);
-    if (cachedHeroAfterSeed != null) {
-      return cachedHeroAfterSeed;
-    }
-
-    // 3. Fallback: busca da API remota
+    // 2. Se não encontrou no cache, busca novos agentes da API remota
     try {
-      final randomPage = Random().nextInt(50) + 1;
-      final heroes = await apiClient.getHeroes(page: randomPage, limit: 10);
+      final randomPage = Random().nextInt(20) + 1;
+      final heroes = await apiClient.getHeroes(page: randomPage, limit: 20);
       if (heroes.isNotEmpty) {
         await heroDao.insertHeroes(heroes);
         final filtered = heroes.where((h) => !excludeIds.contains(h.id)).toList();
@@ -116,16 +109,15 @@ class HeroRepository {
       }
     } catch (_) {}
 
-    return null;
+    // 3. Fallback de emergência caso totalmente offline e sem cache suficiente
+    await seedHeroesFromAssets();
+    return await heroDao.getRandomCachedHero(excludeIds: excludeIds);
   }
 
   /// Garante que o jogador já inicie com 5 agentes no seu inventário/esquadrão
   Future<void> ensureInitialSquad() async {
     final currentCount = await heroDao.getSquadCount();
     if (currentCount >= 5) return;
-
-    // Assegura que o seed dos agentes esteja no banco antes de recrutar
-    await seedHeroesFromAssets();
 
     final squadMembers = await heroDao.getSquadMembers();
     final squadIds = squadMembers.map((h) => h.id).toSet();
@@ -143,7 +135,7 @@ class HeroRepository {
 
     // 2. Tenta buscar da API remota
     try {
-      final remoteHeroes = await apiClient.getHeroes(page: 1, limit: 10);
+      final remoteHeroes = await apiClient.getHeroes(page: 1, limit: 20);
       if (remoteHeroes.isNotEmpty) {
         await heroDao.insertHeroes(remoteHeroes);
         for (var hero in remoteHeroes) {
