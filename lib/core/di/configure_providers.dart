@@ -12,9 +12,8 @@ class ConfigureProviders {
   ConfigureProviders({required this.providers});
 
   static Future<ConfigureProviders> createDependencyTree() async {
-    // 127.0.0.1:3000 funciona no celular físico via 'adb reverse tcp:3000 tcp:3000' e no Linux Desktop.
-    // (Se um dia usar emulador do Android Studio, trocar para 10.0.2.2:3000).
-    final apiClient = ApiClient(baseUrl: "http://127.0.0.1:3000");
+    // API REST remota no Render (acessível via Wi-Fi/4G e sem necessidade de adb reverse ou json-server local)
+    final apiClient = ApiClient(baseUrl: "https://super-hero-api-lvx2.onrender.com");
     final appDatabase = AppDatabase();
     final heroDao = HeroDao(appDatabase: appDatabase);
 
@@ -22,9 +21,6 @@ class ConfigureProviders {
       apiClient: apiClient,
       heroDao: heroDao,
     );
-
-    // Garante que o banco local SQLite contenha todos os agentes do db.json
-    await heroRepository.seedHeroesFromAssets();
 
     // Garante que o jogador comece com 5 agentes no esquadrão/inventário
     await heroRepository.ensureInitialSquad();

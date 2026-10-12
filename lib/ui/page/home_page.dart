@@ -12,12 +12,25 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A), // Fundo escuro premium (Slate)
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.shield, color: Colors.amber, size: 28),
-            SizedBox(width: 8),
-            Text(
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.amber, width: 1.5),
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
               "CARD HERO",
               style: TextStyle(
                 fontWeight: FontWeight.w900,
@@ -33,45 +46,75 @@ class HomePage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Banner de boas-vindas
+              // Banner de boas-vindas com a Logo oficial Card Hero
               Container(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: Colors.blue.withValues(alpha: 0.3),
+                      blurRadius: 14,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(
-                      "Comando Central",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.amber, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          width: 74,
+                          height: 74,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 6),
-                    Text(
-                      "Gerencie seu esquadrão, convoque novos agentes e enfrente crises táticas.",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Card Hero",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "Comando tático de agentes. Colecione, escale seu esquadrão e vença as missões!",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

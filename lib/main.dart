@@ -23,7 +23,7 @@ class CardHeroApp extends StatelessWidget {
       providers: data.providers,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'CardHero',
+        title: 'Card Hero',
         theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.dark,

@@ -17,10 +17,10 @@ class AgentsListPage extends StatefulWidget {
 class _AgentsListPageState extends State<AgentsListPage> {
   late final HeroRepository _heroRepository;
 
-  // Controlador de paginação infinita seguindo o padrão exato da Aula 11/12
+  // Controlador de paginação infinita carregando 20 heróis por página
   late final PagingController<int, HeroModel> _pagingController = PagingController<int, HeroModel>(
     getNextPageKey: (state) => state.lastPageIsEmpty ? null : state.nextIntPageKey,
-    fetchPage: (pageKey) => _heroRepository.getHeroes(page: pageKey, limit: 10),
+    fetchPage: (pageKey) => _heroRepository.getHeroes(page: pageKey, limit: 20),
   );
 
   @override
@@ -79,6 +79,19 @@ class _AgentsListPageState extends State<AgentsListPage> {
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: CircularProgressIndicator(color: Colors.blueAccent),
+              ),
+            ),
+            newPageErrorIndicatorBuilder: (context) => Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: TextButton.icon(
+                  onPressed: () => _pagingController.fetchNextPage(),
+                  icon: const Icon(Icons.wifi_off_rounded, color: Colors.amberAccent, size: 18),
+                  label: const Text(
+                    "Sem conexão para carregar mais heróis (Toque para tentar novamente)",
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ),
               ),
             ),
             noItemsFoundIndicatorBuilder: (_) => const Center(

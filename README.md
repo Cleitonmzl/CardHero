@@ -22,18 +22,25 @@ Aplicativo Flutter desenvolvido com arquitetura **Offline-First**, consumo de AP
 
 ## 🚀 Como Executar
 
-### 1. Iniciar a API Local (`json-server`)
-Em um terminal na raiz do projeto:
+### 1. API Remota (Padrão)
+O projeto já está configurado para consumir a API REST hospedada no Render:
+`https://super-hero-api-lvx2.onrender.com`
+- Carrega **20 heróis por página** de forma sob demanda.
+- Salva os heróis carregados no banco local SQLite.
+- Funciona direto no celular via Wi-Fi/4G sem necessidade de cabo ou servidores locais.
+- Se o dispositivo ficar sem internet, a rolagem para de buscar novos agentes e mantém todos os já cacheados disponíveis.
+
+### 2. (Opcional) Executar com Servidor Local (`json-server`)
+Caso prefira rodar um mock local na sua máquina:
 ```bash
 npx json-server db.json -p 3000
 ```
-
-### 2. Executar no Celular Físico via USB
-Se for rodar no celular físico conectado via cabo:
+Se for rodar no celular físico via USB:
 ```bash
 adb reverse tcp:3000 tcp:3000
 flutter run -d <ID_DO_SEU_DISPOSITIVO>
 ```
+*(Basta alterar a `baseUrl` em `lib/core/di/configure_providers.dart` para `http://127.0.0.1:3000`)*.
 
 ### 3. Gerar o APK Instalável
 Para gerar o arquivo APK:
